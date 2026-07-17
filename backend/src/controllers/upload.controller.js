@@ -1,3 +1,6 @@
+import cloudinary from "../config/cloudinary.js";
+import { User } from "../models/User.model.js";
+
 const uploadResume = async (req, res, next) => {
   try {
     const userId = req.params.id;
@@ -83,3 +86,7 @@ const uploadResume = async (req, res, next) => {
     next(error);
   }
 };
+
+export {
+  uploadResume
+}

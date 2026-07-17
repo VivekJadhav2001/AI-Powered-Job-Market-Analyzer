@@ -15,7 +15,7 @@ const JobSchema = new mongoose.Schema({
 
   location: String,
 
-  workMode: String, // Remote / Hybrid / Onsite
+  workMode: String, 
 
   experience: Number,
 
@@ -38,4 +38,6 @@ const JobSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export default mongoose.model("Job", JobSchema);
+const Job =  mongoose.model("Job", JobSchema);
+
+export default Job

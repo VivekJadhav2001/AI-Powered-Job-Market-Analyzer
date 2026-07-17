@@ -5,8 +5,6 @@ import DashboardPage from './pages/DashboardPage'
 import ExplorePage from './pages/ExplorePage'
 import MatchesPage from './pages/MatchesPage'
 import UploadPage from './pages/UploadPage'
-import Signup from './auth/Signup'
-import SignIn from './auth/SignIn'
 import ProfilePage from './pages/ProfilePage'
 
 function App() {
@@ -22,8 +20,6 @@ function App() {
           <Route path="explore" element={<ExplorePage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
-        <Route path="signin" element={<SignIn />} />
-        <Route path="signup" element={<Signup />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>

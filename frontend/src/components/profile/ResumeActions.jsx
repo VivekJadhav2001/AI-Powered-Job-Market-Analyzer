@@ -34,7 +34,7 @@ export default function ResumeActions({
         className="inline-flex items-center gap-2 rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-200 transition hover:bg-rose-500/15 disabled:opacity-60"
       >
         <FiX size={16} />
-        {deleting ? "Deleting..." : "Delete"}
+        {deleting ? "Removing..." : "Remove"}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@ import {
   FiBarChart2,
   FiCompass,
   FiGrid,
+  FiUser,
   FiUploadCloud,
   FiX,
 } from "react-icons/fi";
@@ -14,6 +15,7 @@ const links = [
   { to: "/upload", label: "Upload job listings", icon: FiUploadCloud },
   { to: "/matches", label: "AI matches", icon: FiBarChart2 },
   { to: "/explore", label: "Job explorer", icon: FiCompass },
+  { to: "/profile", label: "My profile", icon: FiUser },
 ];
 function NavLinks() {
   const { setSidebarOpen } = useApp();

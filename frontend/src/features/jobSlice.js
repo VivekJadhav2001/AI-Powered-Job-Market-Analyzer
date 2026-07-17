@@ -11,7 +11,7 @@ export const getAllJobs = createAsyncThunk(
   "jobs/getAllJobs",
   async (_, thunkAPI) => {
     try {
-      const res = await api.get("/daTeam/getAllJobs?limit=50");
+      const res = await api.get("/daTeam/getAllJobs?limit=1000");
       return res.data.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(

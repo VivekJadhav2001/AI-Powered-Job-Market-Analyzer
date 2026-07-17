@@ -11,7 +11,7 @@ import { useApp } from "../hooks/useApp";
 
 const links = [
   { to: "/", label: "Overview", icon: FiGrid },
-  { to: "/upload", label: "Upload dataset", icon: FiUploadCloud },
+  { to: "/upload", label: "Upload job listings", icon: FiUploadCloud },
   { to: "/matches", label: "AI matches", icon: FiBarChart2 },
   { to: "/explore", label: "Job explorer", icon: FiCompass },
 ];

@@ -37,10 +37,7 @@ export default function ExplorePage() {
   const { allJobs, loading, error } = useSelector((state) => state.jobs);
   const jobs = allJobs || [];
 
-  // Fetch jobs once on mount
-  useEffect(() => {
-    dispatch(getAllJobs());
-  }, [dispatch]);
+  
 
   // Reset to first page whenever search or filters change
   useEffect(() => {

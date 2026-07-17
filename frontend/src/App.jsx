@@ -6,9 +6,22 @@ import ExplorePage from './pages/ExplorePage'
 import MatchesPage from './pages/MatchesPage'
 import UploadPage from './pages/UploadPage'
 import ProfilePage from './pages/ProfilePage'
+import { useDispatch } from 'react-redux'
+import { getAllJobs } from './features/jobSlice'
+import { useEffect } from 'react'
 
 function App() {
   const location = useLocation()
+  const dispatch = useDispatch()
+
+  // Fetch jobs once on mount
+    useEffect(() => {
+  dispatch(getAllJobs())
+    .unwrap()
+    .catch((error) => {
+      console.error(error);
+    });
+}, [dispatch]);
 
   return (
     <AnimatePresence mode="wait">

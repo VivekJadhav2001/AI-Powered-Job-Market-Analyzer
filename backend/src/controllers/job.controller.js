@@ -38,4 +38,18 @@ const uploadJobListings = async (req, res, next) => {
   }
 };
 
-export { uploadJobListings };
+const getAllJobs = async (req, res, next) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 50);
+
+    const jobs = await Job.find()
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    return res.success(200, "Jobs fetched successfully", jobs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { uploadJobListings,getAllJobs };

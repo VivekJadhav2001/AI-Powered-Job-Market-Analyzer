@@ -9,10 +9,10 @@ import "react-toastify/dist/ReactToastify.css";
 import Card from "../components/ui/Card";
 import PageIntro from "../components/ui/PageIntro";
 import { useApp } from "../hooks/useApp";
-
+import axios from "axios"
+import api from "../utils/api";
 export default function UploadPage() {
   const { uploadedFile, setUploadedFile } = useApp();
-  const [ excelData, setExcelData] = useState([])
 
   const [jsonData, setJsonData] = useState([]);
 
@@ -45,7 +45,6 @@ export default function UploadPage() {
           console.log("========== CSV DATA ==========");
           console.table(results.data);
           console.log(results.data);
-         setExcelData(results.data);
 
           setJsonData(results.data);
 
@@ -82,7 +81,6 @@ export default function UploadPage() {
           console.log("========== XLSX DATA ==========");
           console.table(json);
           console.log(json);
-          setExcelData(json);
 
           setJsonData(json);
 
@@ -96,6 +94,18 @@ export default function UploadPage() {
       reader.readAsArrayBuffer(file);
     }
   };
+
+  async function uploadJsonJobsToBackend(){
+    try {
+      const res = await api.post('/daTeam/uploadJobListing',{
+  jobListings: jsonData,
+})
+
+      console.log(res,"RESPONSE FOMR API UPLOAD")
+    } catch (error) {
+      console.log(error,"UPLOAD JOBS DB")
+    }
+  }
 
   return (
     <>
@@ -150,6 +160,8 @@ export default function UploadPage() {
               or click to browse · CSV or XLSX up to 25 MB
             </span>
           </label>
+
+          <button onClick={uploadJsonJobsToBackend}>UPLOAD</button>
 
           {uploadedFile && (
             <div className="mt-5 flex items-center gap-3 rounded-xl bg-mint/8 p-4 text-sm">

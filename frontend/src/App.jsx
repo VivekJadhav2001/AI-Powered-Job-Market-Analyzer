@@ -5,12 +5,9 @@ import DashboardPage from './pages/DashboardPage'
 import ExplorePage from './pages/ExplorePage'
 import MatchesPage from './pages/MatchesPage'
 import UploadPage from './pages/UploadPage'
-<<<<<<< HEAD
 import Signup from './auth/Signup'
 import SignIn from './auth/SignIn'
-=======
 import ProfilePage from './pages/ProfilePage'
->>>>>>> cb357673d1fffae519ddb2a71ceaba1297eaca22
 
 function App() {
   const location = useLocation()

@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
       type: String,
       trim: true,
     },
+    skills:[],
     resumePublicId: {
       type: String,
       trim: true,

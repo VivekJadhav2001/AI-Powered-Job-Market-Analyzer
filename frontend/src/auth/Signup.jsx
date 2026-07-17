@@ -5,9 +5,9 @@ import {
   FiUser,
   FiMail,
   FiLock,
+  FiPhone,
   FiCheckCircle,
   FiAlertCircle,
-  FiBriefcase,
   FiArrowRight,
   FiZap,
 } from "react-icons/fi";
@@ -16,9 +16,9 @@ import Card from "../components/ui/Card";
 export default function Signup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    userName: "",
     email: "",
-    role: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
@@ -55,48 +55,61 @@ export default function Signup() {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
+
+    if (!formData.userName.trim()) {
+      newErrors.userName = "Username is required";
+    } else if (formData.userName.length < 2) {
+      newErrors.userName = "Username must be at least 2 characters";
     }
+
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = "Please enter a valid email";
     }
-    if (!formData.role) {
-      newErrors.role = "Please select your career path";
+
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!/^\+?[1-9]\d{7,14}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Please enter a valid phone number";
     }
+
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    if (formData.password !== formData.confirmPassword) {
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
+
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = "You must agree to the Terms & Conditions";
     }
+
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    setIsSubmitting(true);
-    // Simulate client-side API signup response
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      setTimeout(() => {
-        navigate("/");
-      }, 2500);
-    }, 1200);
+
+    const res = await axios.post("/auth/signUp",formData)
+
+
+    } catch (error) {
+      console.log(error)
+    }
+
   };
 
   return (
@@ -133,40 +146,46 @@ export default function Signup() {
                   Create your account
                 </h1>
                 <p className="mt-2 text-sm text-muted">
-                  Unlock market insights, optimize your profile, and find your edge.
+                  Unlock market insights, optimize your profile, and find your
+                  edge.
                 </p>
               </div>
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Full Name */}
-                <div>
-                  <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted">
-                      <FiUser size={18} />
-                    </div>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${
-                        errors.name
-                          ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                          : "border-white/10 focus:border-violet focus:ring-violet/20"
-                      } bg-white/4 text-ink placeholder-slate-500 focus:outline-none focus:ring-3 transition-all duration-200 text-sm`}
-                      placeholder="Arjun Kumar"
-                    />
-                  </div>
-                  {errors.name && (
-                    <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400 font-medium">
-                      <FiAlertCircle size={13} /> {errors.name}
-                    </p>
-                  )}
-                </div>
+                {/* Username */}
+<div>
+  <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">
+    Username
+  </label>
+
+  <div className="relative">
+    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted">
+      <FiUser size={18} />
+    </div>
+
+    <input
+      type="text"
+      name="userName"
+      value={formData.userName}
+      onChange={handleInputChange}
+      className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${
+        errors.userName
+          ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
+          : "border-white/10 focus:border-violet focus:ring-violet/20"
+      } bg-white/4 text-ink placeholder-slate-500 focus:outline-none focus:ring-3 transition-all duration-200 text-sm`}
+      placeholder="Enter your username"
+      autoComplete="username"
+    />
+  </div>
+
+  {errors.userName && (
+    <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400 font-medium">
+      <FiAlertCircle size={13} /> {errors.userName}
+    </p>
+  )}
+</div>
 
                 {/* Email Address */}
                 <div>
@@ -197,43 +216,33 @@ export default function Signup() {
                   )}
                 </div>
 
-                {/* Career Path Role Selector */}
                 <div>
                   <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">
-                    Career Path
+                    Phone Number
                   </label>
+
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted">
-                      <FiBriefcase size={18} />
+                      <FiPhone size={18} />
                     </div>
-                    <select
-                      name="role"
-                      value={formData.role}
+
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
                       onChange={handleInputChange}
-                      className={`w-full pl-11 pr-10 py-2.5 rounded-xl border appearance-none ${
-                        errors.role
+                      className={`w-full pl-11 pr-4 py-2.5 rounded-xl border ${
+                        errors.phoneNumber
                           ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
                           : "border-white/10 focus:border-violet focus:ring-violet/20"
-                      } bg-[#0b0a1d] text-ink focus:outline-none focus:ring-3 transition-all duration-200 text-sm`}
-                    >
-                      <option value="" disabled className="text-slate-500">
-                        Select your specialization
-                      </option>
-                      {roles.map((role) => (
-                        <option key={role} value={role} className="bg-[#0b0a1d]">
-                          {role}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-muted">
-                      <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                      </svg>
-                    </div>
+                      } bg-white/4 text-ink placeholder-slate-500 focus:outline-none focus:ring-3 transition-all duration-200 text-sm`}
+                      placeholder="+91 9876543210"
+                    />
                   </div>
-                  {errors.role && (
+
+                  {errors.phoneNumber && (
                     <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400 font-medium">
-                      <FiAlertCircle size={13} /> {errors.role}
+                      <FiAlertCircle size={13} /> {errors.phoneNumber}
                     </p>
                   )}
                 </div>
@@ -344,7 +353,10 @@ export default function Signup() {
                 {/* Link to sign-in */}
                 <p className="text-center text-xs text-muted mt-6 pt-2">
                   Already have an account?{" "}
-                  <Link to="/" className="text-violet hover:underline font-semibold">
+                  <Link
+                    to="/"
+                    className="text-violet hover:underline font-semibold"
+                  >
                     Sign In
                   </Link>
                 </p>
@@ -361,9 +373,12 @@ export default function Signup() {
               <div className="grid h-20 w-20 place-items-center rounded-full bg-mint/10 text-mint mb-6 border border-mint/20 shadow-lg shadow-mint/10 animate-bounce">
                 <FiCheckCircle size={44} className="stroke-[1.5]" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome aboard, {formData.name}!</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Welcome aboard, {formData.userName}!
+              </h2>
               <p className="text-muted text-sm max-w-sm mb-6 leading-relaxed">
-                Your career specialization as <strong>{formData.role}</strong> has been configured. We are redirecting you to your intelligence dashboard now.
+                Your account has been created successfully. We're redirecting
+                you to the login page.
               </p>
               <div className="flex items-center gap-2 text-xs text-violet font-medium">
                 <span>Redirecting dashboard</span>

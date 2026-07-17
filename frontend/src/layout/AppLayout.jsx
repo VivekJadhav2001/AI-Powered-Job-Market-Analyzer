@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { FiBell, FiMenu, FiSearch } from "react-icons/fi";
 import Sidebar from "./Sidebar";
 import { useApp } from "../hooks/useApp";
@@ -25,9 +25,9 @@ export default function AppLayout() {
             <button className="glass grid h-10 w-10 place-items-center rounded-xl text-muted">
               <FiBell />
             </button>
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-linear-to-br from-cyan-300 to-violet-500 text-xs font-bold text-slate-900">
+            <Link to="/profile" aria-label="Open profile" className="grid h-10 w-10 place-items-center rounded-xl bg-linear-to-br from-cyan-300 to-violet-500 text-xs font-bold text-slate-900 transition hover:ring-2 hover:ring-violet-200/70">
               AK
-            </div>
+            </Link>
           </div>
         </header>
         <Outlet />

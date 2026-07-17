@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage'
 import ExplorePage from './pages/ExplorePage'
 import MatchesPage from './pages/MatchesPage'
 import UploadPage from './pages/UploadPage'
+import ProfilePage from './pages/ProfilePage'
 
 function App() {
   const location = useLocation()
@@ -17,6 +18,7 @@ function App() {
           <Route path="upload" element={<UploadPage />} />
           <Route path="matches" element={<MatchesPage />} />
           <Route path="explore" element={<ExplorePage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

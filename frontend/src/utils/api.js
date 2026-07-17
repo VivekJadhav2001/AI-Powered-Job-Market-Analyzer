@@ -15,7 +15,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  config.headers["X-Public-Client-Id"] = getPublicWorkspaceId();
+  config.headers["x-public-client-id"] = getPublicWorkspaceId();
   return config;
 });
 

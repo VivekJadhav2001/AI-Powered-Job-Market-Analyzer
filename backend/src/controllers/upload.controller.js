@@ -2,10 +2,11 @@ import { PDFParse } from "pdf-parse";
 import cloudinary from "../config/cloudinary.js";
 import { User } from "../models/User.model.js";
 import Job from "../models/Job.model.js";
+import { scoreJob } from "../services/resumeAI.service.js";
 import {
   extractResumeProfile,
-  scoreJob,
-} from "../services/resumeAI.service.js";
+  normalizeResume,
+} from "../utils/ai/extractResumeProfile.js";
 
 const publicUser = (user) => user.toObject({ versionKey: false });
 const uploadToCloudinary = (buffer) =>
@@ -73,10 +74,12 @@ export const uploadResume = async (req, res, next) => {
         422,
         "This PDF has no readable text. Upload a text-based resume.",
       );
-    const profile = await extractResumeProfile(parsed.text);
+    const profile = normalizeResume(await extractResumeProfile(parsed.text));
     const result = await uploadToCloudinary(req.file.buffer);
     const oldPublicId = user.resumePublicId;
-    Object.assign(user, profile, {
+    Object.assign(user, {
+      ...profile,
+
       resumeUrl: result.secure_url,
       resumePublicId: result.public_id,
       resumeText: parsed.text,

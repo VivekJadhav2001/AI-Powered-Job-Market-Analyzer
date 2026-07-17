@@ -7,6 +7,7 @@ import { globalError, globalResponse } from "./middleware/responseHandler.js";
 import connectDB from "./config/connectDB.js";
 import resumeRouter from "./routes/upload.routes.js";
 import jobListingRouter from "./routes/jobs.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
 
 
 const app = express();
@@ -17,20 +18,15 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL, //process.env.FRONTEND_URL,
     methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "X-Public-Client-Id"],
+    allowedHeaders: ["Content-Type", "X-Public-Client-Id", "x-public-client-id"],
   }),
 );
 
 app.use(globalResponse);
 
-app.use((req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.error(503, "Database is unavailable. Check the MongoDB connection and Atlas network access list.");
-  }
-  next();
-});
-
+app.use("/api/v1",resumeRouter)
 app.use("/api/v1/user",resumeRouter)
+app.use("/api/v1/dashboard",dashboardRouter)
 app.use("/api/v1/daTeam",jobListingRouter)
 
 

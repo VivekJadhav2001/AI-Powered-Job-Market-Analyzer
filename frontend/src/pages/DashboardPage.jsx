@@ -6,9 +6,32 @@ import MetricCard from "../components/dashboard/MetricCard";
 import JobList from "../components/jobs/JobList";
 import Card from "../components/ui/Card";
 import PageIntro from "../components/ui/PageIntro";
-import { metrics, topRoles } from "../data/dashboardData";
+import { topRoles } from "../data/dashboardData";
+import { useSelector } from "react-redux";
 
 export default function DashboardPage() {
+  const { metrics, topSkills, fastestGrowingRoles, loading } = useSelector(
+    (state) => state.dashboard,
+  );
+
+  function getPartOfTheDay() {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 12) {
+      return "Good Morning 👋";
+    }
+
+    if (hour >= 12 && hour < 17) {
+      return "Good Afternoon 👋";
+    }
+
+    if (hour >= 17 && hour < 21) {
+      return "Good Evening 👋";
+    }
+
+    return "Hey Night Owl 🦉";
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -17,7 +40,7 @@ export default function DashboardPage() {
     >
       <PageIntro
         eyebrow="Intelligence overview"
-        title="Good morning, Arjun."
+        title={getPartOfTheDay()}
         description="A live reading of the opportunities shaping your next move."
         action={
           <button className="rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-violet-100">
@@ -39,7 +62,6 @@ export default function DashboardPage() {
                 Demand for data roles over the past 7 months
               </p>
             </div>
-            <span className="text-xs text-mint">+24.3% growth</span>
           </div>
           <div className="mt-5 h-66">
             <MarketTrendChart />
@@ -88,11 +110,15 @@ export default function DashboardPage() {
       <Card className="mt-4 p-6">
         <h2 className="font-medium text-white">Fastest-growing roles</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {topRoles.map(([role, count, increase]) => (
-            <div key={role} className="rounded-2xl bg-white/4 p-4">
-              <p className="text-sm text-white">{role}</p>
-              <p className="mt-2 text-xs text-muted">{count}</p>
-              <p className="mt-1 text-xs text-mint">{increase} this month</p>
+          {fastestGrowingRoles.map((item) => (
+            <div key={item.id} className="rounded-2xl bg-white/4 p-4">
+              <p className="text-sm text-white">{item.role}</p>
+
+              <p className="mt-2 text-2xl font-semibold text-white">
+                {item.openings}
+              </p>
+
+              <p className="mt-1 text-xs text-muted">Active openings</p>
             </div>
           ))}
         </div>

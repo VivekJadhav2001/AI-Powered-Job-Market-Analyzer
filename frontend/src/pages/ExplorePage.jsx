@@ -8,41 +8,70 @@ import {
   FiBriefcase,
   FiStar,
   FiFilter,
+  FiX,
+  FiSliders,
 } from "react-icons/fi";
 
 import Card from "../components/ui/Card";
 import PageIntro from "../components/ui/PageIntro";
-import api from "../utils/api";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllJobs } from "../features/jobSlice";
+
+const emptyFilters = {
+  jobTitle: "",
+  company: "",
+  location: "",
+  experience: "",
+  salary: "",
+  posted: "",
+};
+
+const filterFields = [
+  { key: "jobTitle", label: "Job title", source: "jobRole" },
+  { key: "company", label: "Company", source: "companyName" },
+  { key: "location", label: "Location", source: "location" },
+  { key: "experience", label: "Experience", source: "experience" },
+  { key: "salary", label: "Salary", source: "salary" },
+  { key: "posted", label: "Posted", source: "postedAt" },
+];
+
+const uniqueOptions = (jobs, key) =>
+  [
+    ...new Set(
+      jobs
+        .map((job) => job[key])
+        .filter(Boolean)
+        .map((value) => value.toString().trim())
+        .filter(Boolean),
+    ),
+  ].sort((a, b) => a.localeCompare(b));
 
 export default function ExplorePage() {
   // ---- State ----
   const [search, setSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterValues, setFilterValues] = useState({
-    jobTitle: "",
-    company: "",
-    location: "",
-    experience: "",
-    salary: "",
-    source: "",
-    posted: "",
-  });
+  const [filterValues, setFilterValues] = useState(emptyFilters);
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 12;
 
   // ---- Redux ----
   const dispatch = useDispatch();
   const { allJobs, loading, error } = useSelector((state) => state.jobs);
-  const jobs = allJobs || [];
+  const jobs = useMemo(() => allJobs || [], [allJobs]);
+  const filterOptions = useMemo(
+    () =>
+      filterFields.reduce((options, field) => {
+        options[field.key] = uniqueOptions(jobs, field.source);
+        return options;
+      }, {}),
+    [jobs],
+  );
 
-  
-
-  // Reset to first page whenever search or filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [search, filterValues]);
+    if (!allJobs?.length) dispatch(getAllJobs());
+  }, [allJobs?.length, dispatch]);
+
+  const activeFilterCount = Object.values(filterValues).filter(Boolean).length;
 
   // ---- Filtering ----
   const filteredJobs = useMemo(() => {
@@ -64,7 +93,6 @@ export default function ExplorePage() {
         location,
         experience,
         salary,
-        source,
         posted,
       } = filterValues;
 
@@ -87,8 +115,6 @@ export default function ExplorePage() {
         );
       if (salary)
         checks.push(job.salary?.toLowerCase().includes(salary.toLowerCase()));
-      if (source)
-        checks.push(job.source?.toLowerCase().includes(source.toLowerCase()));
       if (posted)
         checks.push(job.postedAt?.toLowerCase().includes(posted.toLowerCase()));
       // If a filter field is empty we consider it a match
@@ -103,6 +129,22 @@ export default function ExplorePage() {
     return filteredJobs.slice(startIdx, startIdx + jobsPerPage);
   }, [filteredJobs, currentPage]);
 
+  const updateFilter = (key, value) => {
+    setFilterValues((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  };
+
+  const updateSearch = (value) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setFilterValues(emptyFilters);
+    setCurrentPage(1);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -116,13 +158,13 @@ export default function ExplorePage() {
       />
 
       {/* Search & Filter */}
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 lg:flex-row">
         {/* Search */}
         <Card className="flex flex-1 items-center gap-3 p-3">
           <FiSearch className="ml-2 text-muted text-lg" />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => updateSearch(e.target.value)}
             className="flex-1 bg-transparent py-2 text-sm text-white outline-none placeholder:text-muted"
             placeholder="Search role, company, location or skills..."
           />
@@ -133,82 +175,74 @@ export default function ExplorePage() {
         {/* Filter toggle */}
         <button
           onClick={() => setShowFilters((prev) => !prev)}
-          className="flex items-center gap-2 rounded-xl bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600"
+          className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white transition hover:bg-white/10"
         >
           <FiFilter />
           Filters
+          {activeFilterCount > 0 && (
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-mint px-1.5 text-xs font-bold text-slate-950">
+              {activeFilterCount}
+            </span>
+          )}
         </button>
       </div>
 
       {/* Filter Panel */}
       {showFilters && (
-        <Card className="mt-4 p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Job Title */}
-          <input
-            placeholder="Job Title"
-            value={filterValues.jobTitle}
-            onChange={(e) =>
-              setFilterValues((prev) => ({ ...prev, jobTitle: e.target.value }))
-            }
-            className="bg-transparent border-b border-white/20 text-white placeholder:text-muted py-1"
-          />
-          {/* Company */}
-          <input
-            placeholder="Company"
-            value={filterValues.company}
-            onChange={(e) =>
-              setFilterValues((prev) => ({ ...prev, company: e.target.value }))
-            }
-            className="bg-transparent border-b border-white/20 text-white placeholder:text-muted py-1"
-          />
-          {/* Location */}
-          <input
-            placeholder="Location"
-            value={filterValues.location}
-            onChange={(e) =>
-              setFilterValues((prev) => ({ ...prev, location: e.target.value }))
-            }
-            className="bg-transparent border-b border-white/20 text-white placeholder:text-muted py-1"
-          />
-          {/* Experience */}
-          <input
-            placeholder="Experience"
-            value={filterValues.experience}
-            onChange={(e) =>
-              setFilterValues((prev) => ({
-                ...prev,
-                experience: e.target.value,
-              }))
-            }
-            className="bg-transparent border-b border-white/20 text-white placeholder:text-muted py-1"
-          />
-          {/* Salary */}
-          <input
-            placeholder="Salary"
-            value={filterValues.salary}
-            onChange={(e) =>
-              setFilterValues((prev) => ({ ...prev, salary: e.target.value }))
-            }
-            className="bg-transparent border-b border-white/20 text-white placeholder:text-muted py-1"
-          />
-          {/* Source */}
-          <input
-            placeholder="Source"
-            value={filterValues.source}
-            onChange={(e) =>
-              setFilterValues((prev) => ({ ...prev, source: e.target.value }))
-            }
-            className="bg-transparent border-b border-white/20 text-white placeholder:text-muted py-1"
-          />
-          {/* Posted */}
-          <input
-            placeholder="Posted (e.g., 2 days ago)"
-            value={filterValues.posted}
-            onChange={(e) =>
-              setFilterValues((prev) => ({ ...prev, posted: e.target.value }))
-            }
-            className="bg-transparent border-b border-white/20 text-white placeholder:text-muted py-1"
-          />
+        <Card className="mt-4 overflow-hidden p-0">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-violet-500/15 text-violet-200">
+                <FiSliders />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-white">
+                  Refine job results
+                </h2>
+                <p className="mt-1 text-xs text-muted">
+                  {filteredJobs.length} matching jobs update as you type.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={clearFilters}
+              disabled={!activeFilterCount && !search}
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-200 transition hover:bg-white/6 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <FiX />
+              Clear all
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 xl:grid-cols-3">
+            {filterFields.map((field) => (
+              <label key={field.key} className="block">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted">
+                  {field.label}
+                </span>
+                <input
+                  list={`${field.key}-options`}
+                  value={filterValues[field.key]}
+                  onChange={(e) => updateFilter(field.key, e.target.value)}
+                  placeholder={`All ${field.label.toLowerCase()}s`}
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none transition placeholder:text-muted focus:border-violet-400/60 focus:bg-white/8"
+                />
+                <datalist id={`${field.key}-options`}>
+                  {(filterOptions[field.key] || []).map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </datalist>
+              </label>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {error && (
+        <Card className="mt-6 border-rose-400/20 bg-rose-500/10 p-4 text-sm text-rose-200">
+          {error}
         </Card>
       )}
 

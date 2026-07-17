@@ -9,12 +9,14 @@ import "react-toastify/dist/ReactToastify.css";
 import Card from "../components/ui/Card";
 import PageIntro from "../components/ui/PageIntro";
 import { useApp } from "../hooks/useApp";
-import axios from "axios"
+import axios from "axios";
 import api from "../utils/api";
 export default function UploadPage() {
   const { uploadedFile, setUploadedFile } = useApp();
 
   const [jsonData, setJsonData] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isReadyToUpload, setIsReadyToUpload] = useState(false);
 
   const handleFile = (event) => {
     const file = event.target.files?.[0];
@@ -47,8 +49,9 @@ export default function UploadPage() {
           console.log(results.data);
 
           setJsonData(results.data);
+          setIsReadyToUpload(true);
 
-          toast.success("CSV uploaded successfully!");
+          toast.success("File parsed successfully. Ready to upload.");
         },
 
         error: () => {
@@ -83,8 +86,9 @@ export default function UploadPage() {
           console.log(json);
 
           setJsonData(json);
+          setIsReadyToUpload(true);
 
-          toast.success("Excel file uploaded successfully!");
+          toast.success("File parsed successfully. Ready to upload.");
         } catch (err) {
           console.error(err);
           toast.error("Unable to parse Excel file.");
@@ -95,17 +99,44 @@ export default function UploadPage() {
     }
   };
 
-  async function uploadJsonJobsToBackend(){
-    try {
-      const res = await api.post('/daTeam/uploadJobListing',{
-  jobListings: jsonData,
-})
-
-      console.log(res,"RESPONSE FOMR API UPLOAD")
-    } catch (error) {
-      console.log(error,"UPLOAD JOBS DB")
+  const uploadJsonJobsToBackend = async () => {
+    if (!isReadyToUpload || jsonData.length === 0) {
+      toast.warning("Please upload and parse a file first.");
+      return;
     }
-  }
+
+    try {
+      setIsUploading(true);
+
+      toast.loading("Uploading jobs...", {
+        toastId: "uploadJobs",
+      });
+
+      await api.post("/daTeam/uploadJobListing", {
+        jobListings: jsonData,
+      });
+
+      toast.update("uploadJobs", {
+        render: "Jobs uploaded successfully 🎉",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+
+      setUploadedFile(null);
+      setJsonData([]);
+      setIsReadyToUpload(false);
+    } catch (error) {
+      toast.update("uploadJobs", {
+        render: error.response?.data?.message || "Failed to upload jobs.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <>
@@ -136,7 +167,7 @@ export default function UploadPage() {
         <PageIntro
           eyebrow="Data studio"
           title="Bring your data to life."
-          description="Upload job listings or candidate profiles and let Nexora discover the patterns."
+          description="Upload job datasets to power live market insights, skill trends, and hiring analytics."
         />
 
         <Card className="p-6 md:p-10">
@@ -161,20 +192,26 @@ export default function UploadPage() {
             </span>
           </label>
 
-          <button onClick={uploadJsonJobsToBackend}>UPLOAD</button>
+          <button
+            onClick={uploadJsonJobsToBackend}
+            disabled={!isReadyToUpload || isUploading}
+            className={`mt-6 w-full rounded-xl py-3 font-medium transition ${
+              !isReadyToUpload || isUploading
+                ? "cursor-not-allowed bg-gray-700 text-gray-400"
+                : "bg-violet-500 text-white hover:bg-violet-600"
+            }`}
+          >
+            {isUploading ? "Uploading..." : "Upload Jobs"}
+          </button>
 
           {uploadedFile && (
             <div className="mt-5 flex items-center gap-3 rounded-xl bg-mint/8 p-4 text-sm">
               <FiCheckCircle className="text-mint" />
               <FiFileText className="text-muted" />
 
-              <span className="text-white">
-                {uploadedFile.name}
-              </span>
+              <span className="text-white">{uploadedFile.name}</span>
 
-              <span className="ml-auto text-muted">
-                Ready to analyze
-              </span>
+              <span className="ml-auto text-muted">Ready to analyze</span>
             </div>
           )}
 
@@ -197,25 +234,19 @@ export default function UploadPage() {
         </Card>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          {[
-            "Clean automatically",
-            "Map your columns",
-            "Generate insights",
-          ].map((title, index) => (
-            <Card key={title} className="p-5">
-              <span className="text-xs text-violet-300">
-                0{index + 1}
-              </span>
+          {["Clean automatically", "Map your columns", "Generate insights"].map(
+            (title, index) => (
+              <Card key={title} className="p-5">
+                <span className="text-xs text-violet-300">0{index + 1}</span>
 
-              <h2 className="mt-3 font-medium text-white">
-                {title}
-              </h2>
+                <h2 className="mt-3 font-medium text-white">{title}</h2>
 
-              <p className="mt-2 text-sm text-muted">
-                A guided workspace that keeps your data structured and useful.
-              </p>
-            </Card>
-          ))}
+                <p className="mt-2 text-sm text-muted">
+                  A guided workspace that keeps your data structured and useful.
+                </p>
+              </Card>
+            ),
+          )}
         </div>
       </motion.div>
     </>

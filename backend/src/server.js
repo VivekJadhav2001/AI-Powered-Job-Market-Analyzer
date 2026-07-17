@@ -7,6 +7,7 @@ import { globalError, globalResponse } from "./middleware/responseHandler.js";
 import connectDB from "./config/connectDB.js";
 import authRouter from "./routes/auth.routes.js"
 import resumeRouter from "./routes/upload.routes.js";
+import jobListingRouter from "./routes/jobs.routes.js";
 
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(globalResponse);
 
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/user",resumeRouter)
+app.use("/api/v1/daTeam",jobListingRouter)
 
 
 
